@@ -1,0 +1,61 @@
+source "https://rubygems.org"
+
+# Core
+gem "rails", "~> 8.1.0"
+gem "pg", "~> 1.1"
+gem "redis"
+gem "puma", ">= 5.0"
+
+# Background jobs
+gem "sidekiq"
+
+# Auth
+gem "devise"
+gem "jwt"
+
+# CORS
+gem "rack-cors"
+
+# JSON
+gem "jbuilder"
+gem "oj"
+
+# Parsing & External APIs
+gem "httpx"
+gem "nokogiri"
+gem "pdf-reader"
+gem "anthropic", "~> 1.8"
+gem "json_schemer"
+
+# Utils
+gem "dry-initializer"
+
+# Active Storage
+gem "image_processing", "~> 1.2"
+
+# Windows does not include zoneinfo files, so bundle the tzinfo-data gem
+gem "tzinfo-data", platforms: %i[ windows jruby ]
+
+# Use the database-backed adapters for Rails.cache, Active Job, and Action Cable
+gem "solid_cache"
+gem "solid_queue"
+gem "solid_cable"
+
+# Reduces boot times through caching; required in config/boot.rb
+gem "bootsnap", require: false
+
+group :development, :test do
+  gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
+  gem "rspec-rails"
+  gem "factory_bot_rails"
+  gem "faker"
+  gem "shoulda-matchers"
+  gem "rails-controller-testing"
+  gem "brakeman", require: false
+  gem "rubocop-rails-omakase", require: false
+  gem "dotenv-rails"
+end
+
+group :development do
+  gem "bundler-audit", require: false
+end

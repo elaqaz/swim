@@ -1,0 +1,44 @@
+Rails.application.routes.draw do
+  devise_for :users
+
+  # Root routes based on authentication status
+  authenticated :user do
+    root "dashboard#index", as: :authenticated_root
+  end
+
+  unauthenticated do
+    root "pages#home"
+  end
+
+  # Public qualification checker
+  post "check_qualification", to: "pages#check_qualification"
+
+  # Dashboard
+  get "dashboard", to: "dashboard#index"
+
+  # Swimmers
+  resources :swimmers
+
+  # Performances import
+  get "performances/import", to: "performances#import"
+  post "performances/create", to: "performances#create"
+
+  # Performance history
+  get "swimmers/:swimmer_id/performances/:stroke/:distance_m/:course_type", to: "performances#history", as: :swimmer_performance_history
+
+  # Meetings
+  get "meetings", to: "meetings#index", as: :meetings
+  get "meetings/new", to: "meetings#new", as: :new_meeting
+  post "meetings", to: "meetings#create"
+  get "meetings/:id", to: "meetings#show", as: :meeting
+  delete "meetings/:id", to: "meetings#destroy"
+  get "meetings/:id/status", to: "meetings#status", as: :status_meeting
+  get "meetings/:id/review", to: "meetings#review", as: :review_meeting
+  post "meetings/:id/confirm", to: "meetings#confirm", as: :confirm_meeting
+  get "meetings/:id/compare", to: "meetings#compare", as: :compare_meeting
+  get "meetings/:id/swimmer_time_history", to: "meetings#swimmer_time_history", as: :swimmer_time_history_meeting
+  get "meetings/:id/download_pdf", to: "meetings#download_pdf", as: :download_pdf_meeting
+
+  # Health check
+  get "up" => "rails/health#show", as: :rails_health_check
+end
