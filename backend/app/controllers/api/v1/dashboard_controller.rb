@@ -6,8 +6,15 @@ module Api
         meetings = Meeting.all
         recent_performances = Performance.joins(:swimmer)
                                           .merge(current_user.swimmers)
+                                          .includes(:swimmer)
                                           .order(date: :desc)
                                           .limit(10)
+                                          .map do |perf|
+          perf.as_json.merge(
+            swimmer_name: "#{perf.swimmer.first_name} #{perf.swimmer.last_name}",
+            swimmer_se_id: perf.swimmer.se_membership_id
+          )
+        end
         stats = {
           total_swimmers: current_user.swimmers.count,
           total_performances: Performance.joins(:swimmer).merge(current_user.swimmers).count,

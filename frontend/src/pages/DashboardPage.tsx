@@ -113,7 +113,7 @@ export const DashboardPage: React.FC = () => {
             </div>
           ) : (
             <div className="space-y-4">
-              {recentPerformances.slice(0, 5).map((perf: Performance, index: number) => (
+              {recentPerformances.slice(0, 5).map((perf: Performance & { swimmer_name?: string; swimmer_se_id?: string }, index: number) => (
                 <div key={index} className="p-4 bg-gray-50 rounded-lg">
                   <div className="flex justify-between items-start">
                     <div>
@@ -121,6 +121,9 @@ export const DashboardPage: React.FC = () => {
                         {perf.distance_m}m {perf.stroke} ({perf.course_type})
                       </div>
                       <div className="text-sm text-gray-600">{formatDate(perf.date)}</div>
+                      {perf.swimmer_name && (
+                        <div className="text-sm text-blue-600 mt-1">{perf.swimmer_name}</div>
+                      )}
                     </div>
                     <div className="text-lg font-semibold text-blue-600">
                       {formatTime(perf.time_seconds)}
