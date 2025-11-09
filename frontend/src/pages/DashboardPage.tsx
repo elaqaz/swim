@@ -70,17 +70,29 @@ export const DashboardPage: React.FC = () => {
             </div>
           ) : (
             <div className="space-y-4">
-              {swimmers.slice(0, 5).map((swimmer: Swimmer) => (
+              {swimmers.slice(0, 5).map((swimmer: Swimmer & { future_qualification_count?: number }) => (
                 <Link
                   key={swimmer.id}
                   to={`/swimmers/${swimmer.se_membership_id}`}
-                  className="block p-4 hover:bg-gray-50 rounded-lg transition-colors"
+                  className="block p-4 hover:bg-gray-50 rounded-lg transition-colors border-l-4 border-transparent hover:border-blue-500"
                 >
-                  <div className="font-medium text-gray-900">
-                    {swimmer.first_name} {swimmer.last_name}
-                  </div>
-                  <div className="text-sm text-gray-600">
-                    {swimmer.club} • {swimmer.sex}
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <div className="font-medium text-gray-900">
+                        {swimmer.first_name} {swimmer.last_name}
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        {swimmer.club} • {swimmer.sex}
+                      </div>
+                    </div>
+                    {swimmer.future_qualification_count !== undefined && swimmer.future_qualification_count > 0 && (
+                      <div className="ml-4">
+                        <div className="bg-blue-100 text-blue-800 text-xs font-semibold px-3 py-1 rounded-full">
+                          {swimmer.future_qualification_count} {swimmer.future_qualification_count === 1 ? 'event' : 'events'}
+                        </div>
+                        <div className="text-xs text-gray-500 text-center mt-1">qualified</div>
+                      </div>
+                    )}
                   </div>
                 </Link>
               ))}
