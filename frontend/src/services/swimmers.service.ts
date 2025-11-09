@@ -25,5 +25,10 @@ export const swimmersService = {
   async delete(seId: string): Promise<{ message: string }> {
     const response = await api.delete(`/swimmers/${seId}`);
     return response.data;
+  },
+
+  async getFutureQualifications(seId: string) {
+    const response = await api.get(`/swimmers/${seId}/future_qualifications`);
+    return response.data;
   }
 };

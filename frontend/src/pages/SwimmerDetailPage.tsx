@@ -10,6 +10,7 @@ import type { Performance } from '../types/swimmer.types';
 import { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { performancesService } from '../services/performances.service';
+import { swimmersService } from '../services/swimmers.service';
 import { useQuery } from '@tanstack/react-query';
 
 export const SwimmerDetailPage: React.FC = () => {
@@ -21,11 +22,19 @@ export const SwimmerDetailPage: React.FC = () => {
   const importPerformances = useImportPerformances();
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showQualifications, setShowQualifications] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<{
     stroke: string;
     distance_m: number;
     course_type: string;
   } | null>(null);
+
+  // Fetch future qualifications
+  const { data: qualificationsData, isLoading: qualificationsLoading } = useQuery({
+    queryKey: ['future-qualifications', se_id],
+    queryFn: () => swimmersService.getFutureQualifications(se_id || ''),
+    enabled: showQualifications && !!se_id,
+  });
 
   // Handle ESC key to close modal
   useEffect(() => {
@@ -210,6 +219,12 @@ export const SwimmerDetailPage: React.FC = () => {
 
           <div className="flex gap-2">
             <Button
+              onClick={() => setShowQualifications(!showQualifications)}
+              variant="secondary"
+            >
+              {showQualifications ? 'Hide' : 'View'} Future Qualifications
+            </Button>
+            <Button
               onClick={handleImportSwimmingData}
               isLoading={importPerformances.isPending}
               disabled={importPerformances.isPending}
@@ -255,6 +270,103 @@ export const SwimmerDetailPage: React.FC = () => {
             Failed to import performances. Please try again.
           </p>
         </div>
+      )}
+
+      {/* Future Qualifications */}
+      {showQualifications && (
+        <Card className="mb-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Future Qualifications</h2>
+          {qualificationsLoading && <Loading text="Loading qualifications..." />}
+          {qualificationsData && (
+            <>
+              {qualificationsData.total_meetings === 0 ? (
+                <p className="text-gray-500 text-center py-8">
+                  No future meeting qualifications found
+                </p>
+              ) : (
+                <div className="space-y-6">
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <p className="text-blue-900 font-semibold">
+                      Qualified for {qualificationsData.total_events} events across {qualificationsData.total_meetings} meetings
+                    </p>
+                  </div>
+
+                  {qualificationsData.qualifications.map((qual: {
+                    meeting_id: number;
+                    meeting_name: string;
+                    season: string;
+                    pool_required: string;
+                    window_start: string;
+                    window_end: string;
+                    qualified_events: Array<{
+                      stroke: string;
+                      distance_m: number;
+                      course_type: string;
+                      swimmer_time_formatted: string;
+                      qualifying_time_formatted: string;
+                      time_difference: number;
+                      converted: boolean;
+                    }>;
+                    total_events: number;
+                  }) => (
+                    <div key={qual.meeting_id} className="border border-gray-200 rounded-lg p-4">
+                      <div className="mb-4">
+                        <Link
+                          to={`/meetings/${qual.meeting_id}`}
+                          className="text-lg font-semibold text-blue-600 hover:text-blue-700"
+                        >
+                          {qual.meeting_name}
+                        </Link>
+                        <p className="text-sm text-gray-600 mt-1">
+                          {qual.season} • {qual.pool_required} • {qual.total_events} qualifying events
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          Window: {new Date(qual.window_start).toLocaleDateString()} - {new Date(qual.window_end).toLocaleDateString()}
+                        </p>
+                      </div>
+
+                      <div className="overflow-x-auto">
+                        <table className="min-w-full divide-y divide-gray-200">
+                          <thead className="bg-gray-50">
+                            <tr>
+                              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Event</th>
+                              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Your Time</th>
+                              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Qualifying Time</th>
+                              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Margin</th>
+                            </tr>
+                          </thead>
+                          <tbody className="bg-white divide-y divide-gray-200">
+                            {qual.qualified_events.map((event, idx) => (
+                              <tr key={idx} className="hover:bg-gray-50">
+                                <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
+                                  {event.distance_m}m {event.stroke} ({event.course_type})
+                                  {event.converted && (
+                                    <span className="ml-2 text-xs text-blue-600">(converted)</span>
+                                  )}
+                                </td>
+                                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700 font-semibold">
+                                  {event.swimmer_time_formatted}
+                                </td>
+                                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
+                                  {event.qualifying_time_formatted}
+                                </td>
+                                <td className="px-4 py-3 whitespace-nowrap text-sm">
+                                  <span className={event.time_difference < 0 ? 'text-green-600 font-semibold' : 'text-gray-600'}>
+                                    {event.time_difference < 0 ? '-' : '+'}{Math.abs(event.time_difference).toFixed(2)}s
+                                  </span>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+        </Card>
       )}
 
       {/* Statistics */}

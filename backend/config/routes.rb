@@ -18,6 +18,7 @@ Rails.application.routes.draw do
       resources :swimmers do
         member do
           get "performances/:stroke/:distance_m/:course_type", to: "performances#history", as: :performance_history
+          get "future_qualifications"
         end
       end
 
