@@ -14,7 +14,7 @@ module Api
 
         # Always return success to prevent email enumeration
         render json: {
-          message: 'If an account exists with that email, you will receive password reset instructions.'
+          message: "If an account exists with that email, you will receive password reset instructions."
         }, status: :ok
       end
 
@@ -24,12 +24,12 @@ module Api
 
         if user && user.password_reset_valid?
           if user.update(password: params[:password], reset_password_token: nil, reset_password_sent_at: nil)
-            render json: { message: 'Password has been reset successfully.' }, status: :ok
+            render json: { message: "Password has been reset successfully." }, status: :ok
           else
             render json: { errors: user.errors.full_messages }, status: :unprocessable_entity
           end
         else
-          render json: { error: 'Password reset link is invalid or has expired.' }, status: :unprocessable_entity
+          render json: { error: "Password reset link is invalid or has expired." }, status: :unprocessable_entity
         end
       end
     end

@@ -18,8 +18,9 @@ const ForgotPasswordPage: React.FC = () => {
       const response = await authService.requestPasswordReset(email);
       setMessage(response.message);
       setEmail('');
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'An error occurred. Please try again.');
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { error?: string } } };
+      setError(error.response?.data?.error || 'An error occurred. Please try again.');
     } finally {
       setIsLoading(false);
     }

@@ -1,5 +1,5 @@
 class UserMailer < ApplicationMailer
-  default from: 'noreply@swimmeetmanager.com'
+  default from: "noreply@swimmeetmanager.com"
 
   def password_reset(user)
     @user = user
@@ -7,7 +7,7 @@ class UserMailer < ApplicationMailer
 
     mail(
       to: @user.email,
-      subject: 'Reset Your Password - Swim Meet Manager'
+      subject: "Reset Your Password - Swim Meet Manager"
     )
   end
 end

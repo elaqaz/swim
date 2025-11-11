@@ -35,8 +35,9 @@ const ResetPasswordPage: React.FC = () => {
       await authService.resetPassword(token, password);
       alert('Password has been reset successfully. Please log in with your new password.');
       navigate('/login');
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to reset password. The link may be invalid or expired.');
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { error?: string } } };
+      setError(error.response?.data?.error || 'Failed to reset password. The link may be invalid or expired.');
     } finally {
       setIsLoading(false);
     }
